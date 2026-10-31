@@ -1,6 +1,7 @@
 ---
 import type { Game } from '../types/game';
 import Tag from './Tag.astro';
+import { formatRatingOutOfFive, formatStarRating } from '../lib/ratings';
 import ArrowRight from '../assets/icons/arrow-right.svg';
 
 interface Props {
@@ -38,6 +39,15 @@ const { game } = Astro.props;
             )}
 
             <p class="text-slate-400 mb-4 text-sm line-clamp-2" data-testid="game-description">{game.description}</p>
+
+            <div class="mb-4 flex items-center text-sm" data-testid="game-rating">
+                {game.starRating !== null && (
+                    <span class="text-yellow-400" aria-hidden="true">{formatStarRating(game.starRating)}</span>
+                )}
+                <span class={game.starRating === null ? 'text-slate-400' : 'ml-2 text-slate-300'}>
+                    {formatRatingOutOfFive(game.starRating)}
+                </span>
+            </div>
 
             <div class="mt-4 text-sm text-blue-400 font-medium flex items-center">
                 <span>View details</span>
