@@ -62,6 +62,34 @@ test.describe('Game Listing and Navigation', () => {
     });
   });
 
+  test('should filter games by category and publisher together', async ({ page }) => {
+    let beforeFilterCount = 0;
+
+    await test.step('Open the homepage and record the unfiltered count', async () => {
+      await page.goto('/');
+      await expect(page.getByTestId('game-filters')).toBeVisible();
+      beforeFilterCount = await page.getByTestId('game-card').count();
+      expect(beforeFilterCount).toBeGreaterThan(1);
+    });
+
+    await test.step('Apply a matching category and publisher filter', async () => {
+      await page.getByRole('checkbox', { name: 'Strategy' }).check();
+      await page.getByRole('checkbox', { name: 'CodeForge Studios' }).check();
+    });
+
+    await test.step('Verify the catalog narrows and the visible cards match the selected filter values', async () => {
+      const filteredGameCards = page.locator('[data-testid="game-card"]:visible');
+      const visibleCards = await filteredGameCards.count();
+      expect(visibleCards).toBeGreaterThan(0);
+      expect(visibleCards).toBeLessThan(beforeFilterCount);
+
+      const categoryValues = await page.locator('[data-testid="game-category"]:visible').allTextContents();
+      const publisherValues = await page.locator('[data-testid="game-publisher"]:visible').allTextContents();
+      expect(categoryValues.every((value) => value.includes('Strategy'))).toBeTruthy();
+      expect(publisherValues.every((value) => value.includes('CodeForge Studios'))).toBeTruthy();
+    });
+  });
+
   test('should display game details with all required information', async ({ page }) => {
     await test.step('Navigate to specific game details page', async () => {
       await page.goto('/game/1');
